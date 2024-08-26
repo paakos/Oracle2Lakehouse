@@ -58,53 +58,10 @@ host.is_alive
 
 # CELL ********************
 
-# conection parameters  
-#driver= 'oracle.jdbc.driver.0racleDriver' 
-#url= 'jdbc:oracle:thin:@135.225.28.41:1521/oratest1' 
-#user= ' System ' 
-#password= 'OraPasswd1' 
-#table= 'Sales1' 
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
-# CELL ********************
-
 spark = SparkSession.builder \
     .appName("Iniciando com Spark") \
     .config("spark.driver.extraClassPath", "ojdbc11.jar") \
     .getOrCreate()
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
-# CELL ********************
-
-spark = SparkSession.builder \
-    .appName("JDBC Connection") \
-    .config("spark.jars", "/Files/jar/ojdbc8.jar") \
-    .getOrCreate()
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
-# CELL ********************
-
-# url = "jdbc:oracle:thin:@//host:1521/db"
-url= 'jdbc:oracle:thin:@4.223.225.126:1521/oratest1' 
-user ='system'
 
 # METADATA ********************
 
@@ -159,7 +116,8 @@ display(df1.limit(10))
 url= 'jdbc:oracle:thin:@4.223.225.126:1521/oratest1' 
 user ='system'
 password ='OraPasswd1'
-driver = 'oracle.jdbc.driver.0racleDriver'
+#driver = 'oracle.jdbc.driver.0racleDriver'
+driver = 'oracle.jdbc.driver.OracleDriver'
 
 sql='(select * from Sales1)' # with dbtable
 #print(int(jdbcDF.collect()[0][0]))
@@ -175,6 +133,20 @@ numPartitions = jdbcDF.rdd.getNumPartitions()
 print(f"Number of Partition -> {numPartitions}")
 display(jdbcDF.limit(10))
 
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+numPartitions = jdbcDF.rdd.getNumPartitions()
+display(numPartitions)
+bytesPartitions = spark.conf.get('spark.sql.files.maxPartitionBytes')
+display(bytesPartitions)
 
 # METADATA ********************
 
