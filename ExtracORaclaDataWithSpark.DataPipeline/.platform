@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "DataPipeline",
+    "displayName": "ExtracORaclaDataWithSpark"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "17b0cf36-f5be-4e45-b37d-7e8972879c56"
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "properties": {
+    "activities": [
+      {
+        "type": "TridentNotebook",
+        "typeProperties": {
+          "notebookId": "6f3cb2b3-2636-4cdf-8b38-b4e57377fffd",
+          "workspaceId": "00000000-0000-0000-0000-000000000000"
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "GetOraclePartitions",
+        "dependsOn": []
+      },
+      {
+        "type": "ForEach",
+        "typeProperties": {
+          "batchCount": 5,
+          "items": {
+            "value": "@json(variables('arrayofpartitions'))",
+            "type": "Expression"
+          },
+          "activities": [
+            {
+              "type": "TridentNotebook",
+              "typeProperties": {
+                "notebookId": "6413699a-a958-41b6-8af4-232258e5216c",
+                "workspaceId": "00000000-0000-0000-0000-000000000000",
+                "parameters": {
+                  "partitionnumber": {
+                    "value": {
+                      "value": "@string(item())",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  }
+                }
+              },
+              "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 0,
+                "retryIntervalInSeconds": 30,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "Notebook1",
+              "dependsOn": []
+            }
+          ]
+        },
+        "name": "ForEach1",
+        "dependsOn": [
+          {
+            "activity": "Set arrayofPartitions",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "SetVariable",
+        "typeProperties": {
+          "variableName": "arrayofpartitions",
+          "value": {
+            "value": "@activity('GetOraclePartitions').output.result.ExitValue",
+            "type": "Expression"
+          }
+        },
+        "policy": {
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "Set arrayofPartitions",
+        "dependsOn": [
+          {
+            "activity": "GetOraclePartitions",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      }
+    ],
+    "variables": {
+      "arrayofpartitions": {
+        "type": "String",
+        "defaultValue": "[73202, 73203]"
+      },
+      "individualpartitions": {
+        "type": "String"
+      },
+      "partitionint": {
+        "type": "Integer"
+      }
+    }
+  }
+}

@@ -36,7 +36,7 @@
 
 # PARAMETERS CELL ********************
 
-partitionnumber = 73202 
+partitionnumber = "73202" 
 
 # METADATA ********************
 
@@ -48,6 +48,7 @@ partitionnumber = 73202
 # CELL ********************
 
 from pyspark.sql import SparkSession
+from pyspark.sql.functions import lit
 
 # METADATA ********************
 
@@ -92,8 +93,8 @@ jdbcDF1 = spark.read.format('jdbc').option('url',url).option('dbtable',sql).opti
 numPartitions = jdbcDF1.rdd.getNumPartitions()
 bytesPartitions = spark.conf.get('spark.sql.files.maxPartitionBytes')
 #display(bytesPartitions)
-print(f"Number of Partition -> {numPartitions} BytesperPartition {bytesPartitions} ")
-display(jdbcDF1.limit(10))
+#print(f"Number of Partition -> {numPartitions} BytesperPartition {bytesPartitions} ")
+#display(jdbcDF1.limit(10))
 
 
 # METADATA ********************
@@ -105,7 +106,22 @@ display(jdbcDF1.limit(10))
 
 # CELL ********************
 
-jdbcDF1.write.format("delta").mode("append").partitionBy("ORDERDATE").saveAsTable("Sales1")
+partitionnumber = lit(partitionnumber)
+jdbcDF1 = jdbcDF1.withColumn("partitionnumber", lit(partitionnumber))
+#display(jdbcDF1.limit(10))
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+from pyspark.sql.functions import year, month, dayofmonth
+#jdbcDF1.write.format("delta").mode("append").partitionBy("ORDERDATE").saveAsTable("Sales1")
+jdbcDF1.write.format("delta").mode("append").saveAsTable("Sales1")
 
 # METADATA ********************
 

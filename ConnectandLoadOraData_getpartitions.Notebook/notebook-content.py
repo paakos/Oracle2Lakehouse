@@ -27,7 +27,7 @@
 
 # MARKDOWN ********************
 
-# ## Notebook to conect to Oracle 19 under **VPN** with no public access 
+# ## Notebook to connect to get the table partitions to do a for each with the result executing paralell download with a Fabric Pipeline 
 
 
 # MARKDOWN ********************
@@ -37,25 +37,7 @@
 # CELL ********************
 
 from pyspark.sql import SparkSession
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
-# MARKDOWN ********************
-
-# ## Testing conectivity to ip
-# ### Revisar el parametro numero de particiones para acomodarlo al numero de nodos del cluster
-
-
-# CELL ********************
-
-from tcppinglib import tcpping 
-host= tcpping( '4.223.225.126' , 1521, interval =3,timeout=2) 
-host.is_alive 
+import pandas as pd
 
 # METADATA ********************
 
@@ -72,12 +54,12 @@ url= 'jdbc:oracle:thin:@4.223.225.126:1521/oratest1'
 user ='system'
 password ='OraPasswd1'
 driver = 'oracle.jdbc.driver.OracleDriver'
-
-sql='SELECT DISTINCT DBMS_ROWID.ROWID_OBJECT(ROWID) AS partition_id FROM Sales1;' # with dbtable
+sql = "(SELECT CAST(DBMS_ROWID.ROWID_OBJECT(ROWID) AS INTEGER) AS partition_id FROM Sales1 GROUP BY DBMS_ROWID.ROWID_OBJECT(ROWID) ORDER  BY 1 ASC)"
+#sql='SELECT DBMS_ROWID.ROWID_OBJECT(ROWID) AS partition_id FROM Sales1 GROUP BY DBMS_ROWID.ROWID_OBJECT(ROWID);' # with dbtable
 
 jdbcDF = spark.read.format('jdbc').option('url',url).option('dbtable',sql).option('user',user).option('password',password).option('driver',driver).load()
 #jdbcDF1 = spark.read.format('jdbc').option('url',url).option('dbtable',sql).option('user',user).option('password',password).option('partitionColumn','ONLINESALESKEY').option('numpartitions','10').option("lowerBound", '0').option("UpperBound", "32188091").option('driver',driver).load()
-display(jdbcDF)
+#display(jdbcDF)
 
 
 # METADATA ********************
@@ -89,7 +71,40 @@ display(jdbcDF)
 
 # CELL ********************
 
-jdbcDF1.write.format("delta").mode("append").partitionBy("ORDERDATE").saveAsTable("Sales1")
+from decimal import Decimal
+data_list = jdbcDF.toPandas().to_dict(orient='records')
+#display(data_list)
+partition_ids = [item['PARTITION_ID'] for item in data_list]
+partition_ids = [int(item['PARTITION_ID']) for item in data_list]
+#display(partition_ids)
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+#import json
+
+#json_str = jdbcDF.toJSON().collect()
+#json_output = json.dumps(json_str)
+#display(json_output)
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+#mssparkutils.notebook.exit(str(temptablename))
+#mssparkutils.notebook.exit(str(json_output))
+mssparkutils.notebook.exit(partition_ids)
 
 # METADATA ********************
 
